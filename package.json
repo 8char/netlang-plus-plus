@@ -37,6 +37,9 @@
   "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/jquery": "^3.5.29",
+    "html-entities": "^2.5.2",
+    "jquery": "^3.7.1",
     "monaco-editor": "^0.46.0",
     "prismjs": "^1.29.0",
     "tslib": "~2.6"
