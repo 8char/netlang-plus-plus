@@ -88,6 +88,9 @@ jobs:
       - name: Remove webpack.config.cjs
         run: rm -rf webpack.config.cjs
 
+      - name: Remove node_modules
+        run: rm -rf node_modules
+
       - name: Create VERSION file
         run: versionStr=${{ github.ref }};echo -e v${versionStr#*v} > VERSION
 
