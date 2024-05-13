@@ -1,17 +1,123 @@
-name: Node.js CI
+name: Create Netlang++ Release
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
-  build:
+  cache-and-install:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: volta-cli/action@v1
-      - run: npm ci --no-audit
-      - run: npm run lint --if-present
-      - run: npm test
-      - run: npm run build --if-present
-        env:
-          CI: true
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build dist
+        run: pnpx webpack-cli
+
+      - name: Remove source files
+        run: rm -rf src
+
+      - name: Remove github dir
+        run: rm -rf .github
+
+      - name: Remove .gitignore
+        run: rm -rf .gitignore
+
+      - name: Remove .editorconfig
+        run: rm -rf .editorconfig
+
+      - name: Remove .eslintignore
+        run: rm -rf .eslintignore
+
+      - name: Remove .eslintrc.json
+        run: rm -rf .eslintrc.json
+
+      - name: Remove .prettierrc
+        run: rm -rf .prettierrc
+
+      - name: Remove jest.config.js
+        run: rm -rf jest.config.js
+
+      - name: Remove package.json
+        run: rm -rf package.json
+
+      - name: Remove package-lock.json
+        run: rm -rf package-lock.json
+
+      - name: Remove pnpm-lock.json
+        run: rm -rf pnpm-lock.json
+
+      - name: Remove README.md
+        run: rm -rf README.md
+
+      - name: Remove tsconfig.json
+        run: rm -rf tsconfig.json
+
+      - name: Remove tsconfig.release.json
+        run: rm -rf tsconfig.release.json
+
+      - name: Remove webpack.config.cjs
+        run: rm -rf webpack.config.cjs
+
+      - name: Create VERSION file
+        run: versionStr=${{ github.ref }};echo -e v${versionStr#*v} > VERSION
+
+      - name: Push to dist branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Release build: $(cat VERSION)"
+          git push -f origin HEAD:dist
+
+      - name: Remove .git dir
+        run: rm -rf .git
+
+      - name: Create subdirectory
+        run: mkdir ${{ github.event.repository.name }}
+
+      - name: Move files into sub directory
+        run: ls | grep -v ${{ github.event.repository.name }} | xargs mv -t ${{ github.event.repository.name }}
+
+      - name: Create Release Asset
+        run: zip -r9 ${{ github.event.repository.name }}.zip .
+
+      - name: Publish Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            ./${{ github.event.repository.name }}.zip
