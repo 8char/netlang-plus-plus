@@ -289,15 +289,7 @@ declare global {
       .m-page--fluid .m-header {
         background-image: url("https://svgshare.com/i/15yW.svg");
         background-color: #0f1017;
-        box-shadow: 0px 8rem 2rem 0 black, inset 0 0 2rem 0 rgba(255, 215, 0, 0.4);
-        z-index: -1;
-      }
-
-      .netlang .development-toolbar,
-      .netlang-flex-root,
-      .bottom-tab {
-        z-index: 2;
-        background-color: rgba(0, 0, 0, 0) !important;
+        box-shadow: inset 0 0 2rem 0 rgba(255, 215, 0, 0.4);
       }
 
       body {
