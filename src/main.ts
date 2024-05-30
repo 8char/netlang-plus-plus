@@ -289,7 +289,7 @@ declare global {
       .m-page--fluid .m-header {
         background-image: url("https://svgshare.com/i/15yW.svg");
         background-color: #0f1017;
-        box-shadow: inset 0 0 2rem 0 rgba(255, 215, 0, 0.4);
+        box-shadow: inset 0 0 2rem 0 #000;
       }
 
       body {
