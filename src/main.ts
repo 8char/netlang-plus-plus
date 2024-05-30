@@ -308,6 +308,10 @@ declare global {
       .netlang-logo {
         width: 215px !important;
       }
+
+      .btn.btn-success {
+        color: #fff !important;
+      }
     </style>`);
 
     $(() => {
